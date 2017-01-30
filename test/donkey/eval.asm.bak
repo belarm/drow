@@ -1,0 +1,131 @@
+DEFAULT REL
+	section .data
+nodes:	dd 6,0,0,0
+sinkT:	dd 6,1,1,0
+		dd 5,1,0,0
+		dd 5,0,1,0
+		dd 4,0,2,0
+		dd 4,1,2,0
+		dd 4,3,0,0
+		dd 4,2,1,0
+		dd 4,1,0,0
+		dd 4,2,0,0
+		dd 4,1,3,0
+		dd 4,3,2,0
+		dd 4,3,1,0
+		dd 3,4,0,0
+		dd 3,5,0,0
+		dd 3,5,6,0
+		dd 3,7,8,0
+		dd 3,2,9,0
+		dd 3,10,2,0
+		dd 3,5,11,0
+		dd 3,12,5,0
+		dd 2,13,14,0
+		dd 2,15,16,0
+		dd 2,17,18,0
+		dd 2,19,20,0
+		dd 1,21,22,0
+		dd 1,23,24,0
+root:	dd 0,25,26,0
+
+vars:	db 1,1,1,0,1,0
+fmt:	db '%lX',10
+	section .text
+	global main
+	global eval
+	extern printf
+
+
+main:					;set to run on built-in bdd if not called as eval()
+	mov	rdx,vars
+	mov	rsi,nodes
+	mov	rdi,27
+
+	;current node = [rsi + rdi * 16]
+eval:
+	mov	r13,rdx	;we'll be incrementing this *vars
+	shl	rdi,4	;*16bytes
+	lea	r10,[rsi+rdi*1]
+	mov	ecx,dword [r10]	;k=root.v
+	mov	r15d,dword [rsi]	;vmax = false.v
+;	mov	rcx,ecx
+	lea	r10,[rsi+rdi*1]	;r10 = *cur
+.head:
+	cmp	ecx,[r10]
+	jne	.inc
+	movzx	r14,byte [r13]	;r14/term = (char)vars[k]
+	lea	rax,[r10 + r14 * 4 + 4]		;point *cur to cur.lo|hi
+	mov	edi,dword [rax]	;fetch value of next node
+	shl	rdi,4		;*16
+	lea	r10,[rsi+rdi]	;*cur -> *next
+.inc:	
+	inc	ecx		;k++
+	inc	r13		;vars++
+	cmp	ecx,r15d
+	jl	.head
+	lea	r15,[r10+4]	;point to node->lo
+	mov	rax,[r15]
+	ret
+	;done?
+
+
+
+	;rdx: vals
+	;rsi: nodes
+	;rdi: start
+
+	;ecx : k
+
+
+
+
+
+
+
+
+
+
+eval_old:
+	;args are in rdi,rsi,rdx
+	;rdi = node *nodes (array)
+	;rsi = root index = next
+	;rdx = char *vars (array of 0&1) will be incremented in each loop
+	;r13 = copy of *nodes
+	;r12 = vmax
+	;r11 = *cur
+	;r10 = v	will be ++ each loop
+	;rax = vars[v]
+	;get vmax
+	mov	r13,rdi
+	mov	r12d,dword [rdi]		;r12 = vmax
+	;cur = [nodes + 16 * next]
+	xor	r10,r10
+.head:	
+.h1	mov	r11,rsi			;rsi = next
+.h2	shl	r11d,4			;multiply by 16 (4x32-bit)
+.shift:	nop
+;	lea	r11,[rdi + r11]		;r11 = *cur
+.s1	add	r11,r13
+.s2	mov	r9d,dword [r11]
+.s3	cmp	r9d,r12d	;cur->v,vmax
+.s4	je	.done
+.s6	cmp	r10d,dword[r11]		;v,cur->v
+.s7	jl	.inc			;increment and check again
+.s8	add	r11,4
+.s9	movzx	rax,byte [rdx]		;load term into rax
+.s10	shl	rax,4			;multiply by sizeof(node):16
+.s11	add	r11,rax		;point r11 to lo|hi
+.s12	mov	esi,dword [r11]		;next = lo|hi
+.check:	nop
+.inc:
+	inc	r10
+	inc	rdx
+	jmp	.head
+
+.done:
+	;for now, get the retun value right. Do cleanup later.
+	;r11 points to a sink node. Return r11.lo
+	lea	r11,[r11+4]
+	mov	rax,[r11]
+	ret

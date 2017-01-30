@@ -1,0 +1,39 @@
+     1                                  
+     2                                  ; hello_64.asm    print a string using printf
+     3                                  ; Assemble:	  nasm -f elf64 -l hello_64.lst  hello_64.asm
+     4                                  ; Link:		  gcc -m64 -o hello_64  hello_64.o
+     5                                  ; Run:		  ./hello_64 > hello_64.out
+     6                                  ; Output:	  cat hello_64.out
+     7                                  
+     8                                  ; Equivalent C code
+     9                                  ; // hello.c
+    10                                  ; #include <stdio.h>
+    11                                  ; int main()
+    12                                  ; {
+    13                                  ;   char msg[] = "Hello world\n";
+    14                                  ;   printf("%s\n",msg);
+    15                                  ;   return 0;
+    16                                  ; }
+    17                                  ; Declare needed C  functions
+    18                                          extern	printf		; the C function, to be called
+    19                                  
+    20                                  ;        section .data		; Data section, initialized variables
+    21                                  ;raw:	dd	0xFFFFa500
+    22                                  ;msg:		db	"Hello World",0
+    23                                  ;		  fmt:    db "%x", 10, 0          ; The printf format, "\n",'0'
+    24                                  	section .text           ; Code section.
+    25                                  
+    26                                          global main		; the standard gcc entry point
+    27                                  main:				; the program label for the entry point
+    28 00000000 55                              push    rbp		; set up stack frame, must be alligned
+    29                                  	
+    30                                  	mov	rdi,fmt
+    30          ******************       error: symbol `fmt' undefined
+    31 00000001 BED8006000              	mov	rsi,0x6000d8
+    32 00000006 B800000000              	mov	rax,0		; or can be  xor  rax,rax
+    33 0000000B E8(00000000)                    call    printf		; Call C function
+    34                                  
+    35 00000010 5D                      	pop	rbp		; restore stack
+    36                                  
+    37 00000011 B800000000              	mov	rax,0		; normal, no error, return value
+    38 00000016 C3                      	ret			; return

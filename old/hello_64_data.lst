@@ -1,0 +1,5 @@
+     1                                          section .data		; Data section, initialized variables
+     2 00000000 00A5FFFF                raw:			dd	0xFFFFa500
+     3 00000004 48656C6C6F20576F72-     msg:		db	"Hello World",0
+     3 0000000D 6C6400             
+     4 00000010 25780A00                fmt:			db	"%x", 10, 0          ; The printf format, "\n",'0'

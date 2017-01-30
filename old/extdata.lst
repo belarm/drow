@@ -1,0 +1,40 @@
+     1                                  
+     2                                  ; extdata.asm    load an external data section and write() to stdout
+     3                                  ; Assemble:	  nasm -f elf64 -l extdata.lst extdata.asm
+     4                                  ; Link:		  ld -o extdata -s extdata.o
+     5                                  	section .data
+     6                                  extern _end
+     7                                  
+     8                                  
+     9                                  	section .text           ; Code section.
+    10                                  
+    11                                  	global _start
+    12                                  _start:				; the program label for the entry point
+    13                                  ;	mov rax,1
+    14                                  ;	mov rdi,1
+    15                                  ;	mov rsi,_edata
+    16                                  ;	mov rdx,400
+    17                                  ;	syscall
+    18                                  
+    19 00000000 B83C000000              	mov rax,60
+    20 00000005 48BF-                   	mov rdi,_end		;return value
+    20 00000007 [0000000000000000] 
+    21 0000000F 0F05                    	syscall
+    22                                  
+    23                                  
+    24                                  
+    25                                  
+    26                                  
+    27                                  
+    28                                  
+    29                                  ;	push    rbp		; set up stack frame, must be alligned
+    30                                  	
+    31                                  ;	mov	rdi,fmt
+    32                                  ;	mov	rsi,msg
+    33                                  ;	mov	rax,0		; or can be  xor  rax,rax
+    34                                   ;       call    printf		; Call C function
+    35                                  
+    36                                  ;	pop	rbp		; restore stack
+    37                                  
+    38                                  ;	mov	rax,0		; normal, no error, return value
+    39                                  ;	ret			; return

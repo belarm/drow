@@ -1,0 +1,32 @@
+     1                                  	section .text
+     2                                  	global eval
+     3                                  	;current node = [rsi + rdi * 16]
+     4                                  eval:
+     5                                  ;	mov	r13,rdx	;we'll be incrementing this *vars
+     6                                  ;			;no we won't. We're passing a dword argument for now
+     7 00000000 48C1E704                	shl	rdi,4	;*16bytes
+     8 00000004 4C8D143E                	lea	r10,[rsi+rdi*1]
+     9 00000008 418B0A                  	mov	ecx,dword [r10]	;k=root.v
+    10 0000000B 448B3E                  	mov	r15d,dword [rsi]	;vmax = false.v
+    11                                  ;	mov	rcx,ecx
+    12 0000000E 4C8D143E                	lea	r10,[rsi+rdi*1]	;r10 = *cur
+    13                                  .head:
+    14 00000012 413B0A                  	cmp	ecx,[r10]
+    15 00000015 7519                    	jne	.inc
+    16 00000017 4D31F6                  	xor	r14,r14
+    17 0000001A 480FA3CA                	bt		rdx,rcx
+    18 0000001E 4983D601                	adc	r14,1
+    19                                  	;movzx	r14,byte [r13]	;r14/term = (char)vars[k]
+    20 00000022 4B8D04B2                	lea	rax,[r10 + r14 * 4]	;point *cur to cur.lo|hi
+    21 00000026 8B38                    	mov	edi,dword [rax]	;fetch value of next node
+    22 00000028 48C1E704                	shl	rdi,4		;*16
+    23 0000002C 4C8D143E                	lea	r10,[rsi+rdi]	;*cur -> *next
+    24                                  .inc:	
+    25 00000030 FFC1                    	inc	ecx		;k++
+    26                                  ;	inc	r13		;vars++
+    27 00000032 4439F9                  	cmp	ecx,r15d
+    28 00000035 7CDB                    	jl	.head
+    29 00000037 4D8D7A04                	lea	r15,[r10+4]	;point to node->lo
+    30 0000003B 498B07                  	mov	rax,[r15]
+    31 0000003E C3                      	ret
+    32                                  	;done?

@@ -1,0 +1,58 @@
+     1                                  
+     2                                  ; hello_64.asm    print a string using printf
+     3                                  ; Assemble:	  nasm -f elf64 -l hello_64.lst  hello_64.asm
+     4                                  ; Link:		  gcc -m64 -o hello_64  hello_64.o
+     5                                  ; Run:		  ./hello_64 > hello_64.out
+     6                                  ; Output:	  cat hello_64.out
+     7                                  
+     8                                  ; Equivalent C code
+     9                                  ; // hello.c
+    10                                  ; #include <stdio.h>
+    11                                  ; int main()
+    12                                  ; {
+    13                                  ;   char msg[] = "Hello world\n";
+    14                                  ;   printf("%s\n",msg);
+    15                                  ;   return 0;
+    16                                  ; }
+    17                                  ;
+    18                                  	section .data		; Data section, initialized variables
+    19 00000000 48656C6C6F20776F72-     msg:	db 'Hello world',10,0
+    19 00000009 6C640A00           
+    20                                  
+    21                                          section .text           ; Code section.
+    22                                  
+    23                                          global _start
+    24                                  _start:				; the program label for the entry point
+    25 00000000 B801000000              	mov rax,1
+    26 00000005 BF01000000              	mov rdi,1
+    27 0000000A 48BE-                   	mov rsi,msg
+    27 0000000C [0000000000000000] 
+    28 00000014 BA0C000000              	mov rdx,12
+    29 00000019 0F05                    	syscall
+    30                                  ;	mov $1, %rax
+    31                                  ;	mov $1, %rdi
+    32                                  ;	mov $msg, %rsi
+    33                                  ;	mov $12, %rdx
+    34                                  ;	syscall
+    35                                  
+    36 0000001B B83C000000              	mov rax,60
+    37 00000020 BF00000000              	mov rdi,0
+    38 00000025 0F05                    	syscall
+    39                                  
+    40                                  
+    41                                  
+    42                                  
+    43                                  
+    44                                  
+    45                                  
+    46                                  ;	push    rbp		; set up stack frame, must be alligned
+    47                                  	
+    48                                  ;	mov	rdi,fmt
+    49                                  ;	mov	rsi,msg
+    50                                  ;	mov	rax,0		; or can be  xor  rax,rax
+    51                                   ;       call    printf		; Call C function
+    52                                  
+    53                                  ;	pop	rbp		; restore stack
+    54                                  
+    55                                  ;	mov	rax,0		; normal, no error, return value
+    56                                  ;	ret			; return
